@@ -1,0 +1,343 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:var(--font-sans);padding:1rem 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.tab-btn{padding:6px 14px;font-size:12px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);border-radius:var(--border-radius-md);cursor:pointer;transition:all 0.2s}
+.tab-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.search-bar{width:100%;padding:8px 12px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:0.75rem}
+.search-bar:focus{outline:none;border-color:var(--color-border-primary)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+.prop-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;cursor:pointer;transition:border-color 0.2s}
+.prop-card:hover{border-color:var(--color-border-primary)}
+.prop-card.expanded{border-color:var(--color-border-primary)}
+.prop-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.badge{font-size:11px;padding:3px 9px;border-radius:var(--border-radius-md);font-weight:500;white-space:nowrap}
+.b-layout{background:#E6F1FB;color:#0C447C}
+.b-box{background:#EEEDFE;color:#3C3489}
+.b-type{background:#EAF3DE;color:#27500A}
+.b-color{background:#FAEEDA;color:#633806}
+.b-anim{background:#FBEAF0;color:#72243E}
+.b-flex{background:#E1F5EE;color:#085041}
+.b-pos{background:#FAECE7;color:#712B13}
+.b-reset{background:#F1EFE8;color:#444441}
+.prop-name{font-size:13px;font-weight:500;color:var(--color-text-primary);font-family:var(--font-mono)}
+.prop-summary{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+.prop-detail{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary);display:none}
+.prop-card.expanded .prop-detail{display:block}
+.code-block{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);margin:8px 0;white-space:pre-wrap;line-height:1.6}
+.detail-why{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-top:8px}
+.detail-why strong{color:var(--color-text-primary);font-weight:500}
+.count-bar{font-size:12px;color:var(--color-text-secondary);margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center}
+.no-results{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:14px}
+.new-badge{font-size:10px;padding:2px 7px;border-radius:var(--border-radius-md);background:#FCEBEB;color:#A32D2D;font-weight:500}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Explorador completo de CSS — proyecto Link & Park</h2>
+
+<input class="search-bar" type="text" placeholder="Buscar propiedad... ej: display, border, gap..." id="searchInput">
+
+<div class="tabs" id="tabsContainer">
+<button class="tab-btn active" data-cat="all">Todas</button>
+<button class="tab-btn" data-cat="reset">Reset/Base</button>
+<button class="tab-btn" data-cat="layout">Layout</button>
+<button class="tab-btn" data-cat="flex">Flexbox/Grid</button>
+<button class="tab-btn" data-cat="pos">Posición</button>
+<button class="tab-btn" data-cat="box">Modelo de caja</button>
+<button class="tab-btn" data-cat="color">Color/Fondo</button>
+<button class="tab-btn" data-cat="type">Tipografía</button>
+<button class="tab-btn" data-cat="anim">Animación</button>
+</div>
+
+<div class="count-bar"><span id="countBar">Cargando...</span><span style="font-size:11px;color:var(--color-text-secondary)">Clic en tarjeta para expandir</span></div>
+<div class="card-grid" id="cardGrid"></div>
+</div>
+
+<script>
+const props=[
+// RESET/BASE
+{cat:"reset",isNew:false,name:"box-sizing: border-box",badge:"b-reset",label:"Reset",
+summary:"El padding y border se incluyen dentro del ancho total del elemento.",
+code:`*, *::before, *::after {\n  box-sizing: border-box;\n}`,
+why:"<strong>¿Por qué?</strong> Por defecto el navegador suma el padding al ancho (<code>content-box</code>). Si un elemento mide 300px y le pones padding 20px, termina midiendo 340px, rompiendo layouts. Con <code>border-box</code> el padding se resta del interior: siempre mide exactamente lo que defines."},
+
+{cat:"reset",isNew:false,name:"margin: 0 / padding: 0",badge:"b-reset",label:"Reset",
+summary:"Elimina los espacios que el navegador pone por defecto en todos los elementos.",
+code:`*, *::before, *::after {\n  margin: 0;\n  padding: 0;\n}`,
+why:"<strong>¿Por qué?</strong> Cada navegador (Chrome, Firefox, Safari) tiene su propio CSS por defecto. Por ejemplo, un <code>&lt;h2&gt;</code> tiene margin superior e inferior en todos los navegadores, pero de tamaños distintos. El reset los borra a todos para empezar desde cero con control total."},
+
+{cat:"reset",isNew:false,name:"scroll-behavior: smooth",badge:"b-reset",label:"Reset",
+summary:"Los enlaces como #hero o #events desplazan la página suavemente.",
+code:`html {\n  scroll-behavior: smooth;\n}`,
+why:"<strong>¿Por qué?</strong> Sin esto, hacer clic en un link del nav como <code>href='#events'</code> teletransporta la página instantáneamente, lo cual es brusco. <code>smooth</code> anima el desplazamiento con una transición fluida."},
+
+{cat:"reset",isNew:false,name:"img { max-width: 100% }",badge:"b-reset",label:"Reset",
+summary:"Ninguna imagen puede ser más ancha que su contenedor.",
+code:`img {\n  max-width: 100%;\n  display: block;\n}`,
+why:"<strong>¿Por qué?</strong> Las imágenes tienen su tamaño original por defecto. Si subes una foto de 3000px, se desborda del contenedor en móvil. <code>max-width: 100%</code> la limita. <code>display: block</code> elimina el espacio en blanco que aparece debajo de las imágenes (son inline por defecto)."},
+
+{cat:"reset",isNew:false,name:"a { text-decoration: none }",badge:"b-reset",label:"Reset",
+summary:"Quita el subrayado azul que el navegador pone en todos los enlaces.",
+code:`a {\n  text-decoration: none;\n  color: inherit;\n}`,
+why:"<strong>¿Por qué?</strong> El subrayado y color azul por defecto rompería el diseño oscuro de Linkin Park. <code>color: inherit</code> hace que el enlace tome el color de su padre, no el azul del navegador."},
+
+// POSICIÓN
+{cat:"pos",isNew:false,name:"position: sticky",badge:"b-pos",label:"Posición",
+summary:"El header se queda fijo al hacer scroll hacia abajo.",
+code:`header {\n  position: sticky;\n  top: 0;\n  z-index: 100;\n}`,
+why:"<strong>¿Por qué?</strong> Con <code>sticky</code> el header se comporta como <code>relative</code> hasta que el usuario hace scroll, luego se «pega» al tope. <code>top: 0</code> indica dónde se ancla. <code>z-index: 100</code> asegura que flote sobre el resto del contenido."},
+
+{cat:"pos",isNew:false,name:"position: relative (hero)",badge:"b-pos",label:"Posición",
+summary:"Establece el hero como contexto de posicionamiento para sus hijos.",
+code:`.hero {\n  position: relative;\n}`,
+why:"<strong>¿Por qué?</strong> Para que el overlay y el hero-content (con <code>position: absolute</code>) se posicionen <em>dentro</em> del hero y no del viewport completo. Es el «padre ancla»."},
+
+{cat:"pos",isNew:false,name:"position: absolute + inset: 0",badge:"b-pos",label:"Posición",
+summary:"La capa oscura cubre exactamente toda la foto del hero.",
+code:`.hero-overlay {\n  position: absolute;\n  inset: 0;\n}`,
+why:"<strong>¿Por qué?</strong> <code>inset: 0</code> es shorthand de <code>top:0; right:0; bottom:0; left:0</code>. Como el padre <code>.hero</code> tiene <code>position: relative</code>, el overlay se expande hasta sus cuatro bordes exactos."},
+
+{cat:"pos",isNew:false,name:"z-index",badge:"b-pos",label:"Posición",
+summary:"Controla qué elemento aparece encima cuando dos se superponen.",
+code:`.hero-content { z-index: 1; }\nheader { z-index: 100; }\nnav { z-index: 99; }`,
+why:"<strong>¿Por qué?</strong> Los números más altos ganan. El header (100) va sobre la nav móvil (99). <code>z-index</code> solo funciona en elementos con <code>position</code> distinto de <code>static</code>."},
+
+{cat:"pos",isNew:true,name:"position: fixed (nav móvil)",badge:"b-pos",label:"Posición",
+summary:"En móvil, el menú cubre toda la pantalla encima de todo.",
+code:`@media (max-width: 768px) {\n  nav {\n    position: fixed;\n    inset: 0;\n    top: 65px;\n    z-index: 99;\n  }\n}`,
+why:"<strong>¿Por qué?</strong> A diferencia de <code>sticky</code>, <code>fixed</code> se posiciona respecto al viewport siempre, no al scroll. <code>top: 65px</code> deja espacio para el header. Así el menú hamburguesa cubre toda la pantalla sin scroll."},
+
+// LAYOUT
+{cat:"layout",isNew:false,name:"max-width + margin: 0 auto",badge:"b-layout",label:"Layout",
+summary:"Centra el contenido y limita su ancho en pantallas grandes.",
+code:`.about {\n  max-width: 1100px;\n  margin: 0 auto;\n}`,
+why:"<strong>¿Por qué?</strong> Sin <code>max-width</code> el texto se estiraría en monitores 4K. <code>margin: 0 auto</code> reparte el espacio sobrante en ambos lados, centrando el bloque horizontalmente."},
+
+{cat:"layout",isNew:false,name:"overflow-x: auto",badge:"b-layout",label:"Layout",
+summary:"La tabla puede desplazarse en horizontal en móvil sin romper el layout.",
+code:`.tab {\n  overflow-x: auto;\n}\ntable {\n  min-width: 500px;\n}`,
+why:"<strong>¿Por qué?</strong> Las tablas no caben en pantallas pequeñas. <code>overflow-x: auto</code> añade scroll horizontal solo cuando hace falta. <code>min-width</code> garantiza que las columnas tengan espacio mínimo para ser legibles."},
+
+{cat:"layout",isNew:false,name:"@media queries",badge:"b-layout",label:"Layout",
+summary:"Adapta el diseño a tablets y móviles cambiando columnas, tamaños y nav.",
+code:`@media (max-width: 768px) {\n  .about {\n    grid-template-columns: 1fr;\n  }\n  .parkt { display: flex; }\n  nav { display: none; }\n}`,
+why:"<strong>¿Por qué?</strong> Aplican reglas CSS solo cuando la pantalla cumple la condición. En 768px la sección About pasa de 2 columnas a 1 y aparece el botón hamburguesa."},
+
+{cat:"layout",isNew:true,name:"height: 90vh",badge:"b-layout",label:"Layout",
+summary:"El hero ocupa el 90% de la altura visible de la pantalla.",
+code:`.hero {\n  height: 90vh;\n}`,
+why:"<strong>¿Por qué?</strong> <code>vh</code> significa «viewport height». 90vh = 90% de lo que el usuario ve en pantalla en ese momento. Funciona en cualquier tamaño de monitor sin escribir píxeles fijos. El 10% restante deja ver el inicio de la siguiente sección."},
+
+{cat:"layout",isNew:true,name:"aspect-ratio: 16/9",badge:"b-layout",label:"Layout",
+summary:"El contenedor del video mantiene la proporción de pantalla ancha.",
+code:`.video-wrap {\n  max-width: 720px;\n  aspect-ratio: 16/9;\n}`,
+why:"<strong>¿Por qué?</strong> En lugar de definir alto y ancho fijos, <code>aspect-ratio</code> calcula automáticamente la altura según el ancho disponible. Si el contenedor mide 720px de ancho, la altura será 405px. Es responsivo sin media queries."},
+
+{cat:"layout",isNew:true,name:"display: none / display: flex",badge:"b-layout",label:"Layout",
+summary:"Oculta el menú en móvil y lo muestra al abrir el hamburguesa.",
+code:`nav { display: none; }\nnav.open { display: flex; }\n.parkt { display: none; }\n@media (max-width: 768px) {\n  .parkt { display: flex; }\n}`,
+why:"<strong>¿Por qué?</strong> <code>display: none</code> elimina el elemento completamente del layout (no ocupa espacio). JavaScript agrega la clase <code>.open</code> al hacer clic en el hamburguesa, cambiando a <code>flex</code> y haciéndolo visible."},
+
+// FLEXBOX/GRID
+{cat:"flex",isNew:false,name:"display: flex (header)",badge:"b-flex",label:"Flexbox",
+summary:"Alinea logo, nav y botón hamburguesa en una sola fila.",
+code:`header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}`,
+why:"<strong>¿Por qué?</strong> <code>justify-content: space-between</code> empuja logo a la izquierda y nav a la derecha. <code>align-items: center</code> los centra verticalmente sin importar su altura individual."},
+
+{cat:"flex",isNew:false,name:"display: grid (about)",badge:"b-flex",label:"Grid",
+summary:"Divide la sección About en dos columnas: imagen y texto.",
+code:`.about {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 3rem;\n  align-items: center;\n}`,
+why:"<strong>¿Por qué?</strong> <code>1fr 1fr</code> crea dos columnas de igual tamaño flexible. <code>align-items: center</code> alinea verticalmente imagen y texto aunque tengan altura distinta."},
+
+{cat:"flex",isNew:false,name:"display: grid (gallery)",badge:"b-flex",label:"Grid",
+summary:"Crea la cuadrícula de 4 columnas de la galería de fotos.",
+code:`.gallery-grid {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 6px;\n}`,
+why:"<strong>¿Por qué?</strong> <code>repeat(4, 1fr)</code> genera 4 columnas idénticas sin escribirlas a mano. En tablets se reduce a 2 columnas con un media query."},
+
+{cat:"flex",isNew:false,name:"flex-wrap: wrap",badge:"b-flex",label:"Flexbox",
+summary:"Si los elementos no caben en una fila, saltan a la siguiente línea.",
+code:`.sponsors {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 2rem;\n}`,
+why:"<strong>¿Por qué?</strong> Sin <code>wrap</code> los sponsors se comprimirían o desbordarían en móvil. Con <code>wrap</code> bajan automáticamente a la siguiente línea cuando no hay espacio."},
+
+{cat:"flex",isNew:true,name:"flex-direction: column",badge:"b-flex",label:"Flexbox",
+summary:"Apila los elementos en vertical en lugar de horizontal.",
+code:`.footer-social ul {\n  display: flex;\n  flex-direction: column;\n  gap: 0.6rem;\n}\n.cuisine-list {\n  display: flex;\n  flex-direction: column;\n}`,
+why:"<strong>¿Por qué?</strong> Por defecto flex alinea en fila (<code>row</code>). Con <code>column</code> los elementos se apilan uno encima del otro. Los links del footer social y los álbumes de la lista los necesitan en vertical."},
+
+{cat:"flex",isNew:true,name:"gap",badge:"b-flex",label:"Flexbox/Grid",
+summary:"Espacio entre elementos hijos en flex o grid, sin usar margin.",
+code:`nav ul { gap: 2rem; }\n.gallery-grid { gap: 6px; }\n.sponsors { gap: 2rem; }\n.logo { gap: 0.75rem; }`,
+why:"<strong>¿Por qué?</strong> Antes se usaba <code>margin</code> en cada hijo para separar elementos, pero el último elemento también recibía margin sobrante. <code>gap</code> pone espacio <em>entre</em> elementos sin afectar los extremos."},
+
+{cat:"flex",isNew:true,name:"flex-shrink: 0",badge:"b-flex",label:"Flexbox",
+summary:"El elemento no se encoge aunque el espacio del contenedor sea insuficiente.",
+code:`.sponsors p {\n  flex-shrink: 0;\n}`,
+why:"<strong>¿Por qué?</strong> En flex, los hijos se comprimen si no hay espacio. El texto «Brand Partnerships» en sponsors no debe encogerse ni cortarse. <code>flex-shrink: 0</code> lo protege de eso."},
+
+// MODELO DE CAJA
+{cat:"box",isNew:false,name:"padding / margin",badge:"b-box",label:"Modelo de caja",
+summary:"Espacio interior (padding) y exterior (margin) de los bloques.",
+code:`.events {\n  padding: 4rem 2rem;\n}\n.events h2 {\n  margin-bottom: 2rem;\n}`,
+why:"<strong>¿Por qué?</strong> <code>padding</code> empuja el contenido hacia adentro del borde. <code>margin</code> separa el elemento de sus vecinos. Usar <code>rem</code> hace que escale con la fuente base."},
+
+{cat:"box",isNew:false,name:"object-fit: cover",badge:"b-box",label:"Modelo de caja",
+summary:"Las imágenes llenan su área sin distorsionarse aunque sean de tamaños distintos.",
+code:`.gallery-grid img {\n  width: 100%;\n  height: 200px;\n  object-fit: cover;\n}`,
+why:"<strong>¿Por qué?</strong> Si todas las fotos tienen proporciones distintas, <code>object-fit: cover</code> recorta la imagen para llenar el contenedor exacto sin deformarla. Es el equivalente de <code>background-size: cover</code> para etiquetas <code>&lt;img&gt;</code>."},
+
+{cat:"box",isNew:false,name:"border-collapse: collapse",badge:"b-box",label:"Modelo de caja",
+summary:"Elimina el doble borde entre celdas adyacentes de la tabla.",
+code:`table {\n  border-collapse: collapse;\n}`,
+why:"<strong>¿Por qué?</strong> Por defecto cada celda tiene su propio borde y aparecen separados (doble borde). <code>collapse</code> los fusiona en uno solo, dando un aspecto limpio y moderno."},
+
+{cat:"box",isNew:true,name:"border-radius",badge:"b-box",label:"Modelo de caja",
+summary:"Redondea las esquinas de los contenedores y botones.",
+code:`.tab {\n  border-radius: 6px;\n}\n.chef-highlight {\n  border-radius: 4px;\n}`,
+why:"<strong>¿Por qué?</strong> Las esquinas rectas se perciben como duras y frías. El redondeo sutil da sensación moderna. Números bajos (4-6px) son sutiles. 50% convierte un cuadrado en círculo."},
+
+{cat:"box",isNew:true,name:"border-left (cuisine-list)",badge:"b-box",label:"Modelo de caja",
+summary:"La línea dorada a la izquierda de cada álbum en la lista.",
+code:`.cuisine-list li {\n  border-left: 2px solid var(--gold);\n  padding: 0.5rem 0.75rem;\n  background: var(--dark);\n}`,
+why:"<strong>¿Por qué?</strong> Es una técnica de diseño para crear jerarquía visual sin usar iconos. El acento lateral dorado comunica «esto es un ítem de lista especial» y conecta visualmente con la paleta dorada del sitio."},
+
+{cat:"box",isNew:true,name:"border (tabla y botones)",badge:"b-box",label:"Modelo de caja",
+summary:"Los bordes dorados semitransparentes que separan filas y definen botones.",
+code:`thead th {\n  border-bottom: 1px solid rgba(201,160,85,0.2);\n}\ntbody tr {\n  border-bottom: 1px solid rgba(255,255,255,0.06);\n}\n.btn-buy {\n  border: 1px solid var(--gold);\n}`,
+why:"<strong>¿Por qué?</strong> <code>rgba()</code> con baja opacidad crea separadores casi invisibles pero presentes. El borde del botón lo define visualmente sin necesitar fondo de color."},
+
+{cat:"box",isNew:true,name:"width: 100%",badge:"b-box",label:"Modelo de caja",
+summary:"El elemento ocupa todo el ancho disponible de su contenedor.",
+code:`table { width: 100%; }\n.about-img img { width: 100%; }\n.search-bar { width: 100%; }`,
+why:"<strong>¿Por qué?</strong> Elementos como <code>table</code> e <code>img</code> no se expanden solos para llenar su contenedor. <code>width: 100%</code> les indica que deben ocupar todo el ancho disponible, haciéndolos responsivos."},
+
+// COLOR
+{cat:"color",isNew:false,name:"background-image + cover",badge:"b-color",label:"Color/Fondo",
+summary:"Pone la foto de fondo en el hero y la hace cubrir todo el área.",
+code:`.hero {\n  background-image: url('img/fondo2.jpg');\n  background-size: cover;\n  background-position: center;\n}`,
+why:"<strong>¿Por qué?</strong> <code>cover</code> escala la imagen para que nunca quede espacio vacío. <code>center</code> mantiene el punto focal en el medio. Sin <code>cover</code> la imagen se repetiría en tiles."},
+
+{cat:"color",isNew:false,name:"rgba() / Variables CSS",badge:"b-color",label:"Color",
+summary:"Define colores reutilizables y capas semitransparentes.",
+code:`:root {\n  --gold: #e7e7e7;\n  --black: #1a1a1a;\n}\n.hero-overlay {\n  background: rgba(0,0,0,0.55);\n}`,
+why:"<strong>¿Por qué?</strong> Las variables en <code>:root</code> son globales. <code>rgba(0,0,0,0.55)</code> usa negro con 55% de opacidad, creando el overlay sin ocultar completamente la foto."},
+
+{cat:"color",isNew:true,name:"background-color (secciones)",badge:"b-color",label:"Color",
+summary:"Alterna entre --dark y --mid para crear ritmo visual entre secciones.",
+code:`.events  { background: var(--dark); }\n.about   { background: var(--mid);  }\n.multimedia { background: var(--dark); }\nfooter   { background: var(--black); }`,
+why:"<strong>¿Por qué?</strong> Si todas las secciones tuvieran el mismo fondo, la página se vería como un bloque sin separación. Alternar entre <code>--dark</code> y <code>--mid</code> crea ritmo visual y separa secciones sin líneas divisorias."},
+
+{cat:"color",isNew:true,name:"opacity + hover",badge:"b-color",label:"Color",
+summary:"Las fotos de la galería se oscurecen al pasar el mouse.",
+code:`.gallery-grid img {\n  transition: opacity 0.3s ease;\n}\n.gallery-grid img:hover {\n  opacity: 0.8;\n}`,
+why:"<strong>¿Por qué?</strong> <code>opacity: 0.8</code> baja la imagen al 80% de visibilidad, dando feedback visual de que es interactiva. Combinado con <code>transition</code> el cambio es suave, no brusco."},
+
+{cat:"color",isNew:true,name:"border-top/bottom decorativos",badge:"b-color",label:"Color",
+summary:"Líneas doradas sutiles que separan header, sponsors y footer.",
+code:`header {\n  border-bottom: 1px solid rgba(201,160,85,0.2);\n}\nfooter {\n  border-top: 1px solid rgba(201,160,85,0.2);\n}`,
+why:"<strong>¿Por qué?</strong> En diseños oscuros, líneas sólidas se ven toscas. Usar el color dorado con 20% de opacidad crea una separación elegante y casi invisible que mantiene coherencia con la paleta del sitio."},
+
+// TIPOGRAFÍA
+{cat:"type",isNew:false,name:"font-family / clamp()",badge:"b-type",label:"Tipografía",
+summary:"Aplica fuentes y hace el título fluido según el ancho de pantalla.",
+code:`.hero-content h2 {\n  font-family: var(--font-display);\n  font-size: clamp(2.5rem, 6vw, 5rem);\n}`,
+why:"<strong>¿Por qué?</strong> <code>clamp(mín, ideal, máx)</code>: en móvil no baja de 2.5rem, en escritorio no supera 5rem, en el medio usa 6% del ancho. Evita escribir media queries solo para tipografía."},
+
+{cat:"type",isNew:false,name:"letter-spacing / text-transform",badge:"b-type",label:"Tipografía",
+summary:"Espaciado entre letras y texto en mayúsculas para elementos de navegación.",
+code:`nav ul li a {\n  letter-spacing: 0.1em;\n  text-transform: uppercase;\n  font-size: 0.85rem;\n}`,
+why:"<strong>¿Por qué?</strong> <code>uppercase</code> + <code>letter-spacing</code> es una convención visual de navegación. Usar <code>em</code> hace el espaciado proporcional al tamaño de fuente actual."},
+
+{cat:"type",isNew:true,name:"line-height",badge:"b-type",label:"Tipografía",
+summary:"Controla el espacio entre líneas de un párrafo para mejorar la legibilidad.",
+code:`.about-text p {\n  line-height: 1.8;\n}\n.footer-brand p {\n  line-height: 1.8;\n}`,
+why:"<strong>¿Por qué?</strong> Sin <code>line-height</code> las líneas se verían apretadas y difíciles de leer. 1.8 significa 1.8 veces el tamaño de fuente de espacio entre líneas. Para texto de lectura, entre 1.5 y 1.8 es lo recomendado."},
+
+{cat:"type",isNew:true,name:"font-size en rem",badge:"b-type",label:"Tipografía",
+summary:"Usar rem hace que los tamaños sean relativos a la fuente base del navegador.",
+code:`.footer-copy { font-size: 0.78rem; }\n.btn         { font-size: 0.85rem; }\n.about-text p{ font-size: 0.95rem; }`,
+why:"<strong>¿Por qué?</strong> <code>rem</code> es relativo al <code>font-size</code> del <code>&lt;html&gt;</code> (generalmente 16px). 0.85rem = 13.6px. Si el usuario cambia el tamaño de fuente en su navegador, todo escala proporcionalmente. Los <code>px</code> fijos no respetan eso."},
+
+{cat:"type",isNew:true,name:"text-align: center",badge:"b-type",label:"Tipografía",
+summary:"Centra el texto en los títulos de sección y el footer de copyright.",
+code:`.events h2   { text-align: center; }\n.multimedia h2{ text-align: center; }\n.footer-copy { text-align: center; }`,
+why:"<strong>¿Por qué?</strong> Los títulos de sección centrados crean un eje visual claro. El texto de copyright centrado al pie es una convención universal. El resto del texto del sitio es left-align, lo que mejora la legibilidad en párrafos largos."},
+
+// ANIMACIÓN
+{cat:"anim",isNew:false,name:"transition",badge:"b-anim",label:"Animación",
+summary:"Suaviza los cambios de color al hacer hover sobre enlaces y botones.",
+code:`.btn {\n  transition: 0.3s ease;\n}\n.btn:hover {\n  background: var(--gold);\n  color: var(--black);\n}`,
+why:"<strong>¿Por qué?</strong> Sin <code>transition</code> el cambio es instantáneo y brusco. <code>0.3s ease</code> anima suavemente la propiedad que cambia. <code>ease</code> acelera al inicio y desacelera al final, dando sensación natural."},
+
+{cat:"anim",isNew:false,name:"@keyframes fadeUp",badge:"b-anim",label:"Animación",
+summary:"El contenido del hero aparece deslizándose desde abajo al cargar.",
+code:`@keyframes fadeUp {\n  from { opacity: 0; transform: translateY(30px); }\n  to   { opacity: 1; transform: translateY(0); }\n}\n.hero-content {\n  animation: fadeUp 0.9s ease both;\n}`,
+why:"<strong>¿Por qué?</strong> <code>@keyframes</code> define los estados inicial y final. <code>both</code> aplica el primer frame antes de empezar (evita parpadeo). <code>translateY</code> mueve en eje vertical sin afectar el layout."},
+
+{cat:"anim",isNew:true,name:"transform: rotate() (hamburguesa)",badge:"b-anim",label:"Animación",
+summary:"Las tres líneas del botón hamburguesa se convierten en una X al abrirse.",
+code:`.parkt.open span:nth-child(1) {\n  transform: rotate(45deg) translate(5px,5px);\n}\n.parkt.open span:nth-child(2) {\n  opacity: 0;\n}\n.parkt.open span:nth-child(3) {\n  transform: rotate(-45deg) translate(5px,-5px);\n}`,
+why:"<strong>¿Por qué?</strong> <code>rotate(45deg)</code> gira la primera línea 45°. La del medio desaparece con <code>opacity: 0</code>. La tercera gira -45°. Las dos diagonales forman una X. <code>nth-child(n)</code> selecciona el hijo N dentro del padre."},
+
+{cat:"anim",isNew:true,name:"cursor: pointer",badge:"b-anim",label:"Animación",
+summary:"El cursor se convierte en mano al pasar sobre botones y elementos clickeables.",
+code:`.parkt {\n  cursor: pointer;\n}\n.btn-buy {\n  cursor: pointer;\n}`,
+why:"<strong>¿Por qué?</strong> Los botones HTML tienen <code>cursor: pointer</code> por defecto, pero elementos como <code>&lt;button&gt;</code> con estilos personalizados o divs clickeables no lo tienen. Sin esto el cursor sería una flecha y el usuario no sabría que puede hacer clic."},
+];
+
+let activecat="all";
+let searchTerm="";
+let expandedIndex=null;
+
+function render(){
+  const grid=document.getElementById("cardGrid");
+  const bar=document.getElementById("countBar");
+  const filtered=props.filter(p=>{
+    const catOk=activecat==="all"||p.cat===activecat;
+    const q=searchTerm.toLowerCase();
+    const termOk=!q||p.name.toLowerCase().includes(q)||p.summary.toLowerCase().includes(q)||p.why.toLowerCase().includes(q);
+    return catOk&&termOk;
+  });
+  bar.textContent=`Mostrando ${filtered.length} de ${props.length} propiedades`;
+  if(!filtered.length){grid.innerHTML='<div class="no-results">No se encontraron propiedades. Intenta otra búsqueda.</div>';return;}
+  grid.innerHTML=filtered.map((p,i)=>{
+    const isExp=expandedIndex===i;
+    return`<div class="prop-card${isExp?" expanded":""}" data-i="${i}">
+      <div class="prop-top">
+        <span class="badge ${p.badge}">${p.label}</span>
+        ${p.isNew?'<span class="new-badge">nuevo</span>':''}
+        <span class="prop-name">${p.name}</span>
+      </div>
+      <div class="prop-summary">${p.summary}</div>
+      <div class="prop-detail">
+        <div class="code-block">${p.code}</div>
+        <div class="detail-why">${p.why}</div>
+      </div>
+    </div>`;
+  }).join("");
+  grid.querySelectorAll(".prop-card").forEach(card=>{
+    card.addEventListener("click",()=>{
+      const i=parseInt(card.dataset.i);
+      expandedIndex=expandedIndex===i?null:i;
+      render();
+    });
+  });
+}
+
+document.getElementById("tabsContainer").addEventListener("click",e=>{
+  if(!e.target.classList.contains("tab-btn"))return;
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  e.target.classList.add("active");
+  activecat=e.target.dataset.cat;
+  expandedIndex=null;
+  render();
+});
+
+document.getElementById("searchInput").addEventListener("input",e=>{
+  searchTerm=e.target.value;
+  expandedIndex=null;
+  render();
+});
+
+render();
+</script>
